@@ -372,14 +372,14 @@ __global__ void CUDA_Kernel_Stream_Compaction(int* input, int* output, int* flag
   int tid = threadIdx.x;
   //@ assert tid == \ltid;
   
-  //@ assume \pointer_index(input, tid, 1\2);
-  //@ assume \pointer_index(flag_before_prefix, tid, 1\2);
+  //@ inhale \pointer_index(input, tid, 1\2);
+  //@ inhale \pointer_index(flag_before_prefix, tid, 1\2);
   //@ assume flag_before_prefix[tid] == 0 || flag_before_prefix[tid] == 1;
   
-  //@ assume (2 * tid  < ExpTwo(k)) ==> \pointer_index(flag_after_prefix, 2 * tid, 1);
-  //@ assume (2 * tid + 1 < ExpTwo(k)) ==> \pointer_index(flag_after_prefix, 2 * tid + 1, 1);
+  //@ inhale (2 * tid  < ExpTwo(k)) ==> \pointer_index(flag_after_prefix, 2 * tid, 1);
+  //@ inhale (2 * tid + 1 < ExpTwo(k)) ==> \pointer_index(flag_after_prefix, 2 * tid + 1, 1);
 
-  //@ assume (tid == 0) ==> (\forall* int i; 0 <= i && i < ExpTwo(k) && (i + 1) % 1 != 0; \pointer_index(flag_after_prefix, i, 1));
+  //@ inhale (tid == 0) ==> (\forall* int i; 0 <= i && i < ExpTwo(k) && (i + 1) % 1 != 0; \pointer_index(flag_after_prefix, i, 1));
   
   //@ ghost seq<int> flag_seq; 
   //@ assume |flag_seq| == ExpTwo(k); 
@@ -396,7 +396,7 @@ __global__ void CUDA_Kernel_Stream_Compaction(int* input, int* output, int* flag
   //@ ghost seq<int> inp; 
   //@ assume |inp| == ExpTwo(k) && inp[tid] == input[tid];
   
-  //@ assume tid < ExpTwo(M) ==> \pointer_index(output, tid, 1);
+  //@ inhale tid < ExpTwo(M) ==> \pointer_index(output, tid, 1);
   
   
 	int indicator = 2 * tid + 1;
