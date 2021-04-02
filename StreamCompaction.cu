@@ -762,6 +762,8 @@ __global__ void CUDA_Kernel_Stream_Compaction(int* input, int* output, int* flag
     //requires temp_seq[tid] == flag_after_prefix[indicator];
     requires |flag_seq| == ExpTwo(k);
     requires flag_seq[tid] == flag_before_prefix[indicator]; 
+    requires |inp| == ExpTwo(k);
+    requires (inp[tid] == input[tid]);
     ensures indicator == tid;
     ensures tid >= 0 && tid < ExpTwo(k);
     ensures |temp_seq| == ExpTwo(k);
@@ -774,6 +776,8 @@ __global__ void CUDA_Kernel_Stream_Compaction(int* input, int* output, int* flag
     //ensures temp_seq[tid] == flag_after_prefix[indicator];
     ensures |flag_seq| == ExpTwo(k);
     ensures flag_seq[tid] == flag_before_prefix[indicator];
+    ensures |inp| == ExpTwo(k);
+    ensures (inp[tid] == input[tid]);
   @*/
   __syncthreads();
 
@@ -781,12 +785,16 @@ __global__ void CUDA_Kernel_Stream_Compaction(int* input, int* output, int* flag
 	if(flag_before_prefix[tid] == 1){
 
 		output[flag_after_prefix[tid]] = input[tid]; 
+    //@ assert (output[flag_after_prefix[tid]] == input[tid]);
 
 	}
+  
+   //@ assert flag_before_prefix[tid] == 1 ==> (output[flag_after_prefix[tid]] == input[tid]);
 	
 	//@ ghost seq<int> temporary;
 	
 	//@ ghost temporary = compact(inp, flag_seq);
+  //@ assert temporary == compact(inp, flag_seq);
 	//@ assert |temporary| == ExpTwo(M);
   
   //@ assert intsum(Take(flag_seq, tid)) >= 0;
@@ -802,15 +810,21 @@ __global__ void CUDA_Kernel_Stream_Compaction(int* input, int* output, int* flag
   
   //@ assert flag_before_prefix[tid] == 1 ==> (lemma_correctness(inp, flag_seq, tid));
   
+  //@ assert flag_before_prefix[tid] == 1 ==> inp[tid] == get(compact(inp, flag_seq), intsum(Take(flag_seq, tid)));
+  
+  // assert temporary == compact(inp, flag_seq);
+  
   //@ assert flag_before_prefix[tid] == 1 ==> (inp[tid] == get(temporary, intsum(Take(flag_seq, tid))));
   
-  //@ assert flag_before_prefix[tid] == 1 ==> (inp[tid] == input[tid]);
+  //@ assert (inp[tid] == input[tid]);
   
   //@ assert flag_before_prefix[tid] == 1 ==> (input[tid] == get(temporary, flag_after_prefix[tid]));
   
-  //@ assert flag_before_prefix[tid] == 1 ==> (output[flag_after_prefix[tid]] == input[tid]);
+  // assert flag_before_prefix[tid] == 1 ==> (output[flag_after_prefix[tid]] == input[tid]);
   
   //@ assert flag_before_prefix[tid] == 1 ==> (output[flag_after_prefix[tid]] == get(temporary, flag_after_prefix[tid])); 
+  
+
   
 
 }
